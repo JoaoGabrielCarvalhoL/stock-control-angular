@@ -27,7 +27,7 @@ import { ToastModule } from "primeng/toast"
     CardModule,
     InputTextModule,
     ButtonModule,
-    ToastModule
+    ToastModule,
   ],
   providers: [
     provideClientHydration()
