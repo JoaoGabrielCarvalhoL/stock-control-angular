@@ -2,6 +2,8 @@ import { Component } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { UserService } from '../../services/user/user.service';
 import { SignUpRequest } from '../../models/interfaces/user/SignUpRequest';
+import { SignInRequest } from '../../models/interfaces/user/SignInRequest';
+import { CookieService } from 'ngx-cookie-service';
 
 @Component({
   selector: 'app-home',
@@ -11,7 +13,8 @@ import { SignUpRequest } from '../../models/interfaces/user/SignUpRequest';
 export class HomeComponent {
 
   constructor(private formBuilder: FormBuilder,
-    private userService: UserService) { }
+    private userService: UserService,
+    private cookieService: CookieService) { }
 
   loginCard: boolean = true
 
@@ -27,7 +30,17 @@ export class HomeComponent {
   })
 
   public onSubmitLoginForm(): void {
-    alert(this.loginForm.value)
+    if (this.loginForm.value && this.loginForm.valid) {
+      this.userService.authenticate(this.loginForm.value as SignInRequest).subscribe( {
+        next: (response) => {
+          if (response) {
+            this.cookieService.set("USER_TOKEN", response?.token);
+            this.loginForm.reset();
+          }
+        },
+        error: (error) => console.error(error)
+      })
+    }
   }
 
   public onSubmitSignUpForm(): void {
@@ -35,7 +48,9 @@ export class HomeComponent {
       this.userService.signUp(this.signUpForm.value as SignUpRequest).subscribe({
         next: (response) => {
           if (response) {
-            alert("Usuário criado com sucesso!")
+            alert("Usuário criado com sucesso!");
+            this.signUpForm.reset();
+            this.loginCard = true;
           }
         },
         error: (error) => {
