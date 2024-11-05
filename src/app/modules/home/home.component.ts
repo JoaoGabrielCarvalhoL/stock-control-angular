@@ -4,6 +4,7 @@ import { UserService } from '../../services/user/user.service';
 import { SignUpRequest } from '../../models/interfaces/user/SignUpRequest';
 import { SignInRequest } from '../../models/interfaces/user/SignInRequest';
 import { CookieService } from 'ngx-cookie-service';
+import { MessageService } from 'primeng/api';
 
 @Component({
   selector: 'app-home',
@@ -14,7 +15,8 @@ export class HomeComponent {
 
   constructor(private formBuilder: FormBuilder,
     private userService: UserService,
-    private cookieService: CookieService) { }
+    private cookieService: CookieService,
+    private messageService: MessageService) { }
 
   loginCard: boolean = true
 
@@ -36,9 +38,20 @@ export class HomeComponent {
           if (response) {
             this.cookieService.set("USER_TOKEN", response?.token);
             this.loginForm.reset();
+            this.messageService.add({
+              severity: "success",
+              summary: "Sucess!",
+              detail: `Welcome ${response.name}!`,
+              life: 2000
+            });
           }
         },
-        error: (error) => console.error(error)
+        error: (error) => this.messageService.add({
+          severity: "error",
+          summary: "Error",
+          detail: `Sign in failed. Cause: ${error}`,
+          life: 2000
+        })
       })
     }
   }
@@ -48,14 +61,23 @@ export class HomeComponent {
       this.userService.signUp(this.signUpForm.value as SignUpRequest).subscribe({
         next: (response) => {
           if (response) {
-            alert("Usuário criado com sucesso!");
             this.signUpForm.reset();
             this.loginCard = true;
+            this.messageService.add({
+              severity: "success",
+              summary: "Sucess!.",
+              detail: `User saved into database.`,
+              life: 2000
+            })
+
           }
         },
-        error: (error) => {
-          console.log(error)
-        }
+        error: (error) => this.messageService.add({
+          severity: "error",
+          summary: "Error",
+          detail: `Sign up failed. Cause: ${error}`,
+          life: 2000
+        })
       })
     }
   }
