@@ -5,6 +5,7 @@ import { SignUpRequest } from '../../models/interfaces/user/SignUpRequest';
 import { SignInRequest } from '../../models/interfaces/user/SignInRequest';
 import { CookieService } from 'ngx-cookie-service';
 import { MessageService } from 'primeng/api';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-home',
@@ -16,7 +17,8 @@ export class HomeComponent {
   constructor(private formBuilder: FormBuilder,
     private userService: UserService,
     private cookieService: CookieService,
-    private messageService: MessageService) { }
+    private messageService: MessageService,
+    private router: Router) { }
 
   loginCard: boolean = true
 
@@ -38,6 +40,7 @@ export class HomeComponent {
           if (response) {
             this.cookieService.set("USER_TOKEN", response?.token);
             this.loginForm.reset();
+            this.router.navigate(["/dashboard"])
             this.messageService.add({
               severity: "success",
               summary: "Sucess!",

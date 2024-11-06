@@ -1,3 +1,4 @@
+import { CookieService } from 'ngx-cookie-service';
 import { SignUpRequest } from './../../models/interfaces/user/SignUpRequest';
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
@@ -13,7 +14,7 @@ import { SignInRequest } from '../../models/interfaces/user/SignInRequest';
 export class UserService {
 
   private BASE_URL: string = environment.API_URL;
-  constructor(private httpClient: HttpClient) { }
+  constructor(private httpClient: HttpClient, private cookieService: CookieService) { }
 
   public signUp(signUpRequest: SignUpRequest): Observable<SignUpResponse> {
     return this.httpClient.post<SignUpResponse>(
@@ -27,5 +28,10 @@ export class UserService {
       `${this.BASE_URL}/auth`,
       signInRequest
     );
+  }
+
+  public isLogged(): boolean {
+    const token = this.cookieService.get("USER_TOKEN");
+    return token ? true : false;
   }
 }
