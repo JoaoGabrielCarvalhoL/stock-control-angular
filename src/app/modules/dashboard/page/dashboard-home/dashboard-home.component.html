@@ -1,1 +1,11 @@
 <app-toolbar-navigation></app-toolbar-navigation>
+
+<div class="grid">
+  <div class="col-12">
+    <p-card header="Quantity of products in stock" styleClass="shadow-3 m-5 text-indigo-800">
+      <p-chart type="bar" [data]="productsChartDatas" [options]="productsChartOptions">
+
+      </p-chart>
+    </p-card>
+  </div>
+</div>

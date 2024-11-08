@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnDestroy } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { UserService } from '../../services/user/user.service';
 import { SignUpRequest } from '../../models/interfaces/user/SignUpRequest';
@@ -6,13 +6,14 @@ import { SignInRequest } from '../../models/interfaces/user/SignInRequest';
 import { CookieService } from 'ngx-cookie-service';
 import { MessageService } from 'primeng/api';
 import { Router } from '@angular/router';
+import { Subject, takeUntil } from 'rxjs';
 
 @Component({
   selector: 'app-home',
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss'
 })
-export class HomeComponent {
+export class HomeComponent implements OnDestroy {
 
   constructor(private formBuilder: FormBuilder,
     private userService: UserService,
@@ -20,7 +21,8 @@ export class HomeComponent {
     private messageService: MessageService,
     private router: Router) { }
 
-  loginCard: boolean = true
+  loginCard: boolean = true;
+  private destroy$ = new Subject<void>();
 
   loginForm = this.formBuilder.group({
     email: ['', Validators.required],
@@ -35,7 +37,9 @@ export class HomeComponent {
 
   public onSubmitLoginForm(): void {
     if (this.loginForm.value && this.loginForm.valid) {
-      this.userService.authenticate(this.loginForm.value as SignInRequest).subscribe( {
+      this.userService.authenticate(this.loginForm.value as SignInRequest)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe( {
         next: (response) => {
           if (response) {
             this.cookieService.set("USER_TOKEN", response?.token);
@@ -61,7 +65,9 @@ export class HomeComponent {
 
   public onSubmitSignUpForm(): void {
     if (this.signUpForm.value && this.signUpForm.valid) {
-      this.userService.signUp(this.signUpForm.value as SignUpRequest).subscribe({
+      this.userService.signUp(this.signUpForm.value as SignUpRequest)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
         next: (response) => {
           if (response) {
             this.signUpForm.reset();
@@ -83,5 +89,10 @@ export class HomeComponent {
         })
       })
     }
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }
