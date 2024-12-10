@@ -25,6 +25,30 @@ export class CategoryService {
     return this.httpClient.get<Array<GetCategoryResponse>>(
       `${this.API_URL}/categories`, this.httpOptions
     );
-
   }
+
+  deleteCategory(request: { category_id: string }): Observable<void> {
+    return this.httpClient.delete<void>(`${this.API_URL}/category/delete`, {
+      ...this.httpOptions,
+      params: {
+        category_id: request.category_id
+      }
+    });
+  }
+
+  createNewCategory(category: { name: string; }): Observable<Array<GetCategoryResponse>> {
+    return this.httpClient.post<Array<GetCategoryResponse>>(`${this.API_URL}/category`, category, this.httpOptions);
+  }
+
+  editCategory(category: { name: string; category_id: string }): Observable<void> {
+    return this.httpClient.put<void>(`${this.API_URL}/category/edit`, {
+      name: category?.name
+    }, {
+      ...this.httpOptions,
+      params: {
+        category_id: category?.category_id
+      }
+    });
+  }
+
 }
